@@ -1,0 +1,1 @@
+cmd_/home/sai-chaitu/achyuth/drivers/chr_buff2/chr_buff2.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.8.0-31-generic/scripts/module-common.lds --build-id  -o /home/sai-chaitu/achyuth/drivers/chr_buff2/chr_buff2.ko /home/sai-chaitu/achyuth/drivers/chr_buff2/chr_buff2.o /home/sai-chaitu/achyuth/drivers/chr_buff2/chr_buff2.mod.o

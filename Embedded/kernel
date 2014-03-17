@@ -1,0 +1,95 @@
+Building Linux Kernel for kb9202
+----------------------------------
+
+	- Configure kernel for target board
+		- make ARCH=$(arch) $(board_defconfig)
+		- make ARCH=arm kb9202_defconfig 
+		Note: Default configuration files resides in $(linux_source)/arch/$(arch)/configs/
+
+	- Building kernel for target
+
+		- make ARCH=arm CROSS_COMPILE=arm-linux-
+		
+		Creates bootable kernel images in $(linux_source)/arch/$(arch)/boot/
+		Image	- uncompressed kernl image
+		zImage	- compressed kernel image
+		
+		We can use any one of the above images for booting kernal.
+		But the above images are not compatable with u-boot boot loader.
+		We need to add u-boot bootloader header to make them compatable using "mkimage" tool.
+			
+		Syntax:
+			mkimage -A $(arch) -O $(os) -T $(image_type) -C $(compression_type) 
+				-a $(load_addr) -e $(entry_addr) -n $(image_name) -d Image/zImage $(image_name)
+			 
+		example for kb9202
+			mkimage -A arm -O linux -T kernal -C none -a 0x20008000 -e 0x20008000
+			-n "Linux_ARM920t" -d zImage uImage
+				
+		Now uImage is compatable kernel image with u-boot bootloader
+		 
+		- make ARCH=arm CROSS_COMPILE=arm-linux- uImage 
+		Note: Creates u-boot compatable kernel image
+	
+	- Customizing linux kernel for kb9202
+
+		- make ARCH=arm menuconfig
+			- Building kernel with initramfs/initrd support
+					General setup  ---> 
+						[*] Initial RAM filesystem and RAM disk (initramfs/initrd) support
+					Device Drivers  --->
+						[*] Block devices  ---> 
+							<*>   RAM block device support
+			
+			- Building kernel with hot-pluggable devices support
+					General setup  --->
+						[*] Configure standard kernel features (expert users)  --->
+			
+			- Building kernel with NFS support
+				[*] Networking support  --->
+					Networking options  --->
+						[*] TCP/IP networking
+						[*]   IP: kernel level autoconfiguration
+		                                [*]     IP: DHCP support 
+						[*]     IP: BOOTP support
+		                                [*]     IP: RARP support   
+				File systems  --->
+					[*] Network File Systems  --->
+				
+
+			- Building kernel with flash file system support
+					File systems  --->
+						[*] Miscellaneous filesystems  --->
+							
+							jffs2 support
+							-------------
+							<*>   Journalling Flash File System v2 (JFFS2) support
+							
+					ubifs support 
+					-------------
+					Device Drivers  --->
+						<*> Memory Technology Device (MTD) support  --->
+					File systems  --->
+						[*] Miscellaneous filesystems  --->
+							<*>   UFS file system support
+				
+					yaffs2 support
+					--------------	
+					yaffs2 support is not in upstream, need to apply the patch from commulity
+					
+					Download patch
+					--------------
+						- git clone git://www.alephl.co.uk/yaffs2
+					Apply patch
+					-----------
+						cd yaffs2
+						- ./patch-ker.sh c m $(linux_source)
+
+					File systems  --->
+						[*] Miscellaneous filesystems  --->
+							<*>   yaffs2 file system support
+								
+									
+										
+			
+				

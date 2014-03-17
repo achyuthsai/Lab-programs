@@ -1,0 +1,215 @@
+U-Boot booting options 
+----------------------
+
+Booting kernel with network via TFTP 
+-------------------------------------
+	
+	Setup host system
+	-----------------
+
+	- Install tftp server
+		apt-get install atftpd
+
+	- Configure tftp server
+		Open /etc/default/atftpd and set USE_INETD to false	
+			USE_INETD=false
+	- Start tftp server
+		/etc/init.d/atftpd start
+	- create directory under root with name 'tftpboot' and add uImage under that.
+		/tftpboot/uImage
+	Now host system in ready to transfer images using tftp 
+	
+	Setup targer system
+	-------------------
+	
+	- Set server ip address on target
+		setenv serverip 10.0.0.4
+
+	- Set target ip address
+		setenv ipaddr 10.0.0.111
+
+	- Transfer kernel image to target
+		tftpboot command in U-Boot is used to transfer images from 
+		host to target
+		# tftpboot $<RAM_Addr> $<File_name>
+
+		Example
+			on mini2440
+			# tftpboot 0x31000000 uImage 
+	
+	- Booting kernel image
+		# bootm $<RAM_Addr>
+
+		Example
+			on mini2440
+			# bootm 0x31000000
+
+Mounting NFS Root filesystem 	
+----------------------------
+	Setup host system
+	-----------------
+	- Install NFS server 
+		# sudo apt-get install nfs-kernel-serve
+	- Add the following line in /etc/exports
+
+		/mnt    10.0.0.111(rw,sync,no_root_squash,no_all_squash,no_subtree_check)
+		
+		/mnt 		- Folder to mount as root filesystem on targer
+		10.0.0.111	- Target ip address
+		(rw,sync,	- Options
+		no_root_squash,
+		no_all_squash,
+		no_subtree_check)
+	- Start NFS Server
+		# /etc/init.d/nfs-kernel-server restart
+	
+	Setup target system
+	-------------------
+	- Set bootargs env variable with ntf
+		setenv bootargs console=ttySAC0,115200 ip=10.0.0.111:10.0.0.4::255.255.255.0 root=/dev/nfs nfsroot=10.0.0.4:/nfs/rootFS
+
+Booting kernel with initrd filesystem (Filesystem size should be <=16M)
+-------------------------------------
+	- Transfer kernel Image
+		# tftpboot 0x31000000 uImage
+	- Transfer filesystem Image
+		# tftpboot 0x32000000 rootfs.img
+	- Set bootargs with following 
+		setenv bootargs console=ttySAC0,115200 root=/dev/ram0 initrd=0x32000000,4M rootfstype=ext2
+
+Flashing U-boot bootloader on mini2440
+---------------------------------------
+
+Installing bootloader into NAND:
+================================
+
+For installing u-boot bootloader into nand we require uboot.bin and usbpush/dnw (apps for host)
+
+usage of usbpush:
+$(PATH)usbpush $(PATH)/uboot.bin
+
+supervivi is provided by board vendor into the nor flash
+Put the switch in Nor mode
+
+supervivi bootloader shows following menu
+
+##### FriendlyARM BIOS 2.0 for 2440 #####
+[x] format NAND FLASH for Linux
+[v] Download vivi
+[k] Download linux kernel
+[y] Download root_yaffs image
+[a] Absolute User Application
+[n] Download Nboot for WinCE
+[l] Download WinCE boot-logo
+[w] Download WinCE NK.bin
+[d] Download & Run
+[z] Download zImage into RAM
+[g] Boot linux from RAM
+[f] Format the nand flash
+[b] Boot the system
+[s] Set the boot parameters
+[u] Backup NAND Flash to HOST through USB(upload)
+[r] Restore NAND Flash from HOST through USB
+[q] Goto shell of vivi
+[i] Version: 1138-2K
+Enter your selection: f
+
+
+##### FriendlyARM BIOS 2.0 for 2440 #####
+[x] format NAND FLASH for Linux
+[v] Download vivi
+[k] Download linux kernel
+[y] Download root_yaffs image
+[a] Absolute User Application
+[n] Download Nboot for WinCE
+[l] Download WinCE boot-logo
+[w] Download WinCE NK.bin
+[d] Download & Run
+[z] Download zImage into RAM
+[g] Boot linux from RAM
+[f] Format the nand flash
+[b] Boot the system
+[s] Set the boot parameters
+[u] Backup NAND Flash to HOST through USB(upload)
+[r] Restore NAND Flash from HOST through USB
+[q] Goto shell of vivi
+[i] Version: 1138-2K
+Enter your selection: x
+Found block size = 0x00020000
+Erasing...    ... done
+Writing...    ... done
+Written 49152 bytes
+Saved vivi private data
+
+
+##### FriendlyARM BIOS 2.0 for 2440 #####
+[x] format NAND FLASH for Linux
+[v] Download vivi
+[k] Download linux kernel
+[y] Download root_yaffs image
+[a] Absolute User Application
+[n] Download Nboot for WinCE
+[l] Download WinCE boot-logo
+[w] Download WinCE NK.bin
+[d] Download & Run
+[z] Download zImage into RAM
+[g] Boot linux from RAM
+[f] Format the nand flash
+[b] Boot the system
+[s] Set the boot parameters
+[u] Backup NAND Flash to HOST through USB(upload)
+[r] Restore NAND Flash from HOST through USB
+[q] Goto shell of vivi
+[i] Version: 1138-2K
+Enter your selection: q
+
+
+Supervivi> load ram 0x31000000 246164 u-boot
+USB host is connected. Waiting a download.
+
+Supervivi> go 0x31000000
+go to 0x31000000
+  argument 0 = 0x00000000
+  argument 1 = 0x00000000
+  argument 2 = 0x00000000
+  argument 3 = 0x00000000
+
+Then uboot started from ram
+
+by using uboot commands we load the uboot into nand
+MINI2440 # nand scrub
+
+NAND scrub: device 0 whole chip
+Warning: scrub option will erase all factory set bad blocks!
+         There is no reliable way to recover them.
+         Use this command only for testing purposes if you
+         are sure of what you are doing!
+
+Really scrub this NAND flash? <y/N>y
+Erasing at 0x7fe0000 -- 100% complete.
+Bad block table not found for chip 0
+Bad block table not found for chip 0
+OK
+
+
+mini2440:>nand createbbt (for first time it will take arround 30 minutes to create bad block table)
+
+MINI2440 # nand write.e 0x31000000 0x0 0x0003C19E   {(0x0003C19E=size in hex)  (here write.e used for writing not page aligned size of data)}
+
+NAND write: device 0 offset 0x0, size 0x3c19e
+
+Writing data at 0x3c000 -- 100% complete.
+ 246174 bytes written: OK
+
+it shows the information of u-boot dynamic partitions
+MINI2440 # dynpart
+mtdparts mtdparts=mini2440-nand:0x00040000(u-boot),0x00020000(u-boot_env),0x00500000(kernel),0x07aa0000(rootfs)
+
+
+to save environment variables of uboot into nand u-boot_env partition
+MINI2440 # dynenv set u-boot_env
+
+save changes
+MINI2440 # saveenv
+
+

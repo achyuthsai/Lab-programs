@@ -1,0 +1,75 @@
+
+ON HOST SYSTEM:
+===============
+
+ Inset MMC card into system slot
+
+- Unmount all prevoius partions
+
+- Create required partitions of required size using "fdisk" command or "gparted" apt-package, both are dangerous becarefull!
+
+	# fdisk /dev/mmcblk0  (Here i am using fdisk)
+
+	-create partitions as below:
+		64M ---> for kernel
+		1G  ---> for root-fiesystem
+
+- After creating partitions check at /dev directoty then we find two device files  
+	/dev/mmcblk0p1		( used for 64M kernel partition)
+	/dev/mmcblk0p2 		( used for 64M rootfs partition)
+
+- By using following command to create ext2/fat filesystem for 1st partition (ext2/fat because uboot support these two filesystems)  
+	# mkfs.ext2 /dev/mmcblk0p1  (for ext2 fs) 
+		
+			OR
+
+	# mkfs.vfat -F32 /dev/mmcblk0p1  (for fat32 fs)
+
+- Creating filesystem for 2nd partition (i.e for root filesystem) is our wish (i.e ext2/ext3/ext4/fat).
+	Here we are using ext3 for this, by using following command
+	# mkfs.ext3 /dev/mmcblk0p2
+
+- Mount those partitions into your desired mount points by using "mount" command.
+	
+- Copy the kernel image into 1st parttion and copy rootfile system into 2nd partition.
+
+- Safely unmount those partitions using "umount" command.
+  
+
+ ON TARGET SYSTEM BOOTLOADER:
+=============================
+
+- Insert mmc card into target board mmc slot
+
+	MINI2440# mmcinit	(This command initialize the mmc)
+
+- Set bootargs as following, Here rootfilesysyem type ext3 because as per the created filesystem type for 2nd partition in mmc
+ 
+	MINI2440# setenv bootargs console=ttySAC0,115200 rootfstype=ext3 root=/dev/mmcblk0p2
+
+- Copy the uImage from mmc kernel (1st) partition to RAM, by using following command
+	Here 'mmc' is device name,  0:1--->means Device 0 and Partition 1
+
+	MINI2440# ext2load mmc 0:1 0x31000000 uImage	(if we are using ext2 for ist partition)
+		
+				OR
+
+	MINI2440# fatload mmc 0:1 0x31000000 uImage	(if we are using fat for ist partition)
+
+- Start the booting using following command
+
+	MINI2440# bootm 0x31000000 
+
+
+AUTO BOOTING PROCESS FROM U-BOOT
+================================
+
+MINI2440# setenv bootcmd mmcinit \; ext2load mmc 0:1 0x31000000 uImage \; bootm 0x31000000 
+MINI2440# setenv bootargs console=ttySAC0,115200 rootfstype=ext3 root=/dev/mmcblk0p2
+MINI2440# saveenv
+MINI2440# reset
+
+
+------------------------------------------------THE-END--------------------------------------------- 
+
+

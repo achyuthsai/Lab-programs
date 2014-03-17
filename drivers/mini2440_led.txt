@@ -1,0 +1,65 @@
+
+S3C2440A has 130 multi-functional input/output port pins and
+there are eight ports.
+And 4 LED's are connected to GPB5,GPB6,GPB7,GPB8 respectively.
+
+	GPB5:LED1
+	GPB6:LED2
+	GPB7:LED3
+	GPB8:LED4
+
+PORT CONTROL DESCRIPTIONS:
+
+PORT B CONFIGURATION REGISTER (GPBCON):
+The PGBCON(port control register) determines which function
+is used for each pin.
+
+
+PORT DATA REGISTER (GPBDAT):
+If Ports are configured as output ports, data can be written to
+the corresponding bit of GPBDAT. If Ports are configured as input
+ports, the data can be read from the corresponding bit of GPBDAT.
+
+PORT PULL-UP REGISTER (GPBUP):
+The port pull-up register controls the pull-up resister enable/disable
+of each port group. When the corresponding bit is 0, the pull-up 
+resister of the pin is enabled. When 1, the pull-up resister is disabled.
+
+IO PORTB CONTROL REGISTERS:
+
+REGISTER    ADDRESS            DESCRIPTION                          RESET_VALUE
+
+GPBCON	   0x56000010 	  Configures the pins of port B			0x00
+GPBDAT	   0x56000014 	  The data register for port B			USERDATA
+GPBUP	   0x56000018     pull-up disable register for port B		0x00
+
+
+
+
+GPBCON     BIT           DESCRIPTION
+
+GPB5      [11:10]       00:INPUT  01:OUTPUT
+			10:nXBACK 11:reserved
+
+GPB6      [13:12]       00:INPUT  01:OUTPUT
+			10:nXBREQ 11:reserved
+
+GPB7      [15:14]       00:INPUT   01:OUTPUT
+			10:nXDACK1 11:reserved
+
+GPB8      [17:16]       00:INPUT   01:OUTPUT
+			10:nXDREQ1 11:reserved
+
+
+GPBDAT       BIT         DESCRIPTION
+GPBDAT      [10:0]      When the port is configured as input port, the corresponding bit is the pin
+                        state. When the port is configured as output port, the pin state is the same as
+                        the corresponding bit. When the port is configured as functional pin, the
+                        undefined value will be read.
+
+GPBUP       BIT           DESCRIPTION
+GPBUP      [10:0]       0: the pull up function attached to to the corresponding port pin is enabled.
+			1: the pull up function is disabled.
+
+
+

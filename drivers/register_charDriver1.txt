@@ -1,0 +1,69 @@
+- Char drivers can also be registered using kernel helper function register_chrdev.
+
+Device file management
+----------------------
+	- Files representing char drivers must be retained until drivers are active.
+
+	- When driver is unregistered, device node representing the driver must be deleted to avoid accidental
+	  execution of applications using device file and perform associated operations.
+
+	- Drivers can be implemented to automate the procedure of creating and removing device files using hot-plug subsystem.
+
+	- This mechanism ensures that a device file never exists without the corresponding driver in memory.
+
+Automate the device node creation using hot-plug subsystem.
+-----------------------------------------------------------
+	
+	Steps:
+        	Register char driver with device tree.
+        	unregister char driver with device tree.
+	
+	Hot-plug Subsystem
+
+	-----------------
+
+	- Hot-plug system is designed whose objective is to auto configure and enabling required software in response to hardware event.
+
+	- Hot-plug sub-system consist of the following components
+
+        	- Device Tree
+        	- Kernel thread to maintains device tree.
+        	- User space daemon
+
+
+	Device Tree
+	-----------
+
+	- It is a global data structure maintained by kernel to keep track of device configuration details.
+
+	- For each hardware physically connected device tree enumerates a structure to store configuration details.
+	
+	- As and when hardware is connected/disconnected device tree is updated by adding/removing relevant device objects.
+
+	- Device information can be accessed form used mode through a virtual file system sysfs mounted on /sys.
+
+
+
+	Kernel Thread
+	-------------
+
+	- Device tree is continuously monitored by a kernel thread which notifies used space demons
+  	  as and when a change occurrences in device tree.
+
+	User space daemon
+	----------------
+
+	- specific linux distribution can provide a user space application for receiving hot-plug events delivered by Kernel thread.
+	  ( Most of Desktop Linux distribution use a software package called udev as default user daemon to handle hot-plug events)
+
+	- udev package contains a set of scripts which receives the events, sort events, validate the event and execute the 
+	  corresponding action.
+
+	- udev can create a device file to represent the driver and also launch the application that use device file.
+
+
+Registering a char driver using misc interface
+----------------------------------------------
+
+- Linux kernel provides a ready to use char driver interface layer that provides driver registration and device node management 
+  facility called misc.

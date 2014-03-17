@@ -1,0 +1,115 @@
+Building cross-compilation toolchain using Buildroot
+----------------------------------------------------
+
+        Buildroot
+
+                - Buildroot provides a full-featured environment for cross-development.
+                - Buildroot can generate a cross-compilation toolchain, a root filesystem, 
+                  a Linux kernel image and a bootloader for your target.
+                - Buildroot can be configured for any combination of above menctioned options, 
+		  independently.
+
+        Download Buildroot Source
+                - http://buildroot.net/downloads/
+
+	Building cross-compilation toolchain
+
+		Step 1
+		------
+
+		- untar the buildroot source and change directory to buildroot 		
+		- make menuconfig
+			- Target Architecture 
+				select arm
+			- Target Architecture Variant
+				select arm920t
+			- Target ABI
+				select EABI
+				
+				Note:- 
+				------
+					- ABI stands for Application Binary Interface which 
+					  describes the low-level interface between a computer 
+					  program and the operating system or another program.
+					
+					ABIs cover details such as:
+					---------------------------
+    					- the sizes, layout, and alignment of data types
+    					- the function call convention, which controls how 
+					  functions' arguments are passed and return values retrieved; 
+					  for example, whether all parameters are passed on the stack 
+					  or some are passed in registers, which registers are used for 
+					  which function parameters, and whether the first function 
+					  parameter passed on the stack is pushed first or last onto 
+					  the stack.
+    					- how an application should make system calls to the operating 
+					  system. 
+
+					The new EABI:
+					-------------	
+    					- Allows use of optimized hardfloat functions with the 
+					  system's softfloat libraries
+    					- Uses a more efficient syscall convention
+    					- Will be more compatible with future tools
+			- Build options
+				Generic options (like Download dir, Output directory, 
+				no of threads to run while building,..)
+			- Toolchain 
+				- Toolchain type 
+					select Buildroot toolchain
+				- Kernel Headers 
+					select kernel version
+				- uClibc C library Version
+					select uClibc version 
+				- Binutils Version
+					select binutils version
+				- C compiler Version 
+					select gcc version
+		Unselect all in the following menus as we are not building kernel,
+		bootloader and root filesystem for targer using buildroot(we will build them manually).
+
+			System configuration  ---> Unselect all (Generic info about taget)
+                     	Package Selection for the target  ---> Unselect all (binarys for target)
+                     	Filesystem images  ---> Unselect all (Filesystem type for target)
+                     	Bootloaders  ---> Unselect all (bootloader for target) 
+                     	Kernel  ---> Unselect all (kernel image for target)
+
+		Step 2
+		------
+			- make
+
+				The make command will generally perform the following steps:
+
+    				- download source files (as required).
+    				- configure, build and install the cross-compiling toolchain. 
+    				- build/install selected target packages.
+				- create a root filesystem in selected formats. 
+    				- build a bootloader image, if selected. 
+    				- build a kernel image, if selected.
+
+		Buildroot output is stored in a single directory, output/. This directory contains several subdirectories:
+
+		- images/ where all the images (kernel image, bootloader and root filesystem images) are stored.
+		- build/ where all the components except for the cross-compilation toolchain are built 
+		  (this includes tools needed to run Buildroot on the host and packages compiled for the target). 
+		  The build/ directory contains one subdirectory for each of these components.
+		- target/ which contains almost the complete root filesystem for the target: everything needed is present except 
+	   	  the device files in /dev/
+		- host/ contains the installation of tools compiled for the host that are needed for the proper execution of Buildroot, 
+		  including the cross-compilation toolchain.
+		- toolchain/ contains the build directories for the various components of the cross-compilation toolchain. 
+		
+		Cross-compilation toolchain is installed in "output/host/usr/bin/"
+
+		Exporting cross-compilation toolchain Path
+		------------------------------------------
+		- Single session (Temporarily)
+			PATH=$PATH:($Buildroot_Path)/output/host/usr/bin/
+		- System wide (Permanently, not session) 
+			vim $(HOME)/.profile
+				or
+			vim $(HOME)/.bashrc
+			Add the following line at end of any one of the above mentioned files
+				export PATH=$PATH:/($Buildroot_Path)/output/host/usr/bin/
+
+

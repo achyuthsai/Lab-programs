@@ -1,0 +1,13 @@
+
+- Init is the first process started during booting, and is 
+  typically assigned PID number 1. 
+
+- Its primary role is to create processes from a script 
+  stored in the file /etc/inittab file.
+
+- It is started by the kernel, and if the kernel is unable
+  to start it, a kernel panic will result. 
+
+- All System V init scripts are stored in /etc/rc.d/init.d/ or 
+  /etc/init.d directory. These scripts are used to control 
+  system startup and shutdown.

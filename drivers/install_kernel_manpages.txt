@@ -1,0 +1,5 @@
+
+In linux kernel source parent directory
+--------------------------------------
+make mandocs         
+make  installmandoc

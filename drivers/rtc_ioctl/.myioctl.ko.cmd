@@ -1,0 +1,1 @@
+cmd_/home/morning/achyuth/drivers/rtc_ioctl/myioctl.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.5.0-23-generic/scripts/module-common.lds --build-id  -o /home/morning/achyuth/drivers/rtc_ioctl/myioctl.ko /home/morning/achyuth/drivers/rtc_ioctl/myioctl.o /home/morning/achyuth/drivers/rtc_ioctl/myioctl.mod.o

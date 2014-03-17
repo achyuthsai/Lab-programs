@@ -1,0 +1,1 @@
+cmd_/home/morning/achyuth/drivers/chr_ioctl/buff_ioctl/buff_ioctl.ko := ld -r -m elf_i386 -T /usr/src/linux-headers-3.5.0-23-generic/scripts/module-common.lds --build-id  -o /home/morning/achyuth/drivers/chr_ioctl/buff_ioctl/buff_ioctl.ko /home/morning/achyuth/drivers/chr_ioctl/buff_ioctl/buff_ioctl.o /home/morning/achyuth/drivers/chr_ioctl/buff_ioctl/buff_ioctl.mod.o

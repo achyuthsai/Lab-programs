@@ -1,0 +1,31 @@
+Dynamic Approch
+---------------
+
+	
+ 	 alloc_chrdev_region() - register a range of char device numbers
+ 	 @dev: output parameter for first assigned number
+ 	 @baseminor: first of the requested range of minor numbers
+ 	 @count: the number of minor numbers required
+ 	 @name: the name of the associated device or driver
+ 	
+ 	 Allocates a range of char device numbers.  The major number will be
+ 	 chosen dynamically, and returned (along with the first minor number)
+ 	 in @dev.  Returns zero or a negative error code.
+ 	
+Major Number
+------------
+- VFS maintains a vector to store all registered character device objects.
+- Char device vector is an array of pointers of type struct cdev and of length of 4096.
+- Major number assigned to device file is the offset into this char device vector,
+  where the corresponding device cdev object is stored.
+
+Minor Number
+------------
+- When multiple instances of same devices are connected, a common driver is used to execute
+  operations on any of the instance.
+- Applications must shown each instance of the device using unique device node.
+- All device nodes would be created with same major number, but each file carries a unique
+  id called minor number.
+- When app initiates the operation driver extracts the minor number of the file to decide the
+  physical device on which the operation is to be run.
+
